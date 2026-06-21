@@ -1,0 +1,10 @@
+# OS / 에디터
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# 미리보기/임시
+__*.html
+*.tmp

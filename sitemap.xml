@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sitemap.xml — FID 피드디자인
+  · 검색엔진에 페이지 목록·우선순위·갱신주기를 알려줍니다.
+  · 네이버 서치어드바이저 / 구글 서치콘솔에 이 파일 URL을 제출하세요.
+  · 실제 도메인 확정 시 <loc> 값들을 일괄 교체하세요.
+  · 페이지를 추가하면 <url> 블록을 똑같이 복사해 추가하세요.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://fid-design.github.io/Interior/</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://fid-design.github.io/Interior/assets/img/brand/fid-og-cover.jpg</image:loc>
+      <image:title>FID 피드디자인 — 공간에 진심을 더하다</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://fid-design.github.io/Interior/assets/img/gallery/residential-01.jpg</image:loc>
+      <image:title>럭셔리 주방 인테리어 시공 사례</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://fid-design.github.io/Interior/library.html</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://fid-design.github.io/Interior/assets/img/gallery/golf-academy-01.jpg</image:loc>
+      <image:title>강남 골프 아카데미 상업 인테리어</image:title>
+    </image:image>
+  </url>
+
+</urlset>

@@ -64,7 +64,11 @@
     <a href="index.html#about">소개</a>
     <a class="nav__cta" href="index.html#contact">CONTACT US</a>
   </nav>
+  <button class="nav__music" id="bgmToggle" aria-label="배경 음악 켜기" aria-pressed="false" title="음악 재생">
+    <span class="nav__music-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </button>
   <button class="nav__burger" id="burger" aria-label="메뉴"><span></span><span></span></button>
+  <audio id="bgm" src="assets/audio/fid-ambient.wav" loop preload="none"></audio>
 </header>
 
 <main class="libpage">

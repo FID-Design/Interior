@@ -109,6 +109,16 @@
   }
   if (bgm && bgmBtn) {
     var TARGET_VOL = 0.5;
+    // 페이지 이동(예: 라이브러리)에도 곡을 이어가기 위한 상태 저장 키
+    var ON_KEY = 'fidBgmOn', T_KEY = 'fidBgmTime';
+    var store = function () { try { return window.sessionStorage; } catch (e) { return null; } }();
+    var save = function (on) {
+      if (!store) return;
+      try {
+        store.setItem(ON_KEY, on ? '1' : '0');
+        if (on && isFinite(bgm.currentTime)) store.setItem(T_KEY, String(bgm.currentTime));
+      } catch (e) {}
+    };
     var fadeTo = function (target) {
       var step = (target - bgm.volume) / 14, c = 0;
       var iv = setInterval(function () {
@@ -116,28 +126,70 @@
         if (c >= 14) { bgm.volume = target; clearInterval(iv); }
       }, 45);
     };
-    var play = function () {
-      if (bgm.preload === 'none') bgm.preload = 'auto';
-      bgm.volume = 0;
-      var p = bgm.play();
-      if (p && p.then) { p.then(function () { fadeTo(TARGET_VOL); }).catch(function () {}); }
-      else { bgm.volume = TARGET_VOL; }
+    var markPlaying = function () {
       bgm._started = true;
       bgmBtn.classList.add('is-playing');
       bgmBtn.setAttribute('aria-pressed', 'true');
       bgmBtn.setAttribute('aria-label', '배경 음악 끄기');
       hideHint();
     };
+    var play = function (fromResume) {
+      if (bgm.preload === 'none') bgm.preload = 'auto';
+      if (!fromResume) bgm.volume = 0;
+      var p = bgm.play();
+      if (p && p.then) {
+        p.then(function () { if (!fromResume) fadeTo(TARGET_VOL); }).catch(function () {});
+      } else if (!fromResume) { bgm.volume = TARGET_VOL; }
+      markPlaying();
+      save(true);
+    };
     var pause = function () {
       bgm.pause();
       bgmBtn.classList.remove('is-playing');
       bgmBtn.setAttribute('aria-pressed', 'false');
       bgmBtn.setAttribute('aria-label', '배경 음악 켜기');
+      save(false);
     };
     bgmBtn.addEventListener('click', function () { if (bgm.paused) play(); else pause(); });
-    // 안내를 누르면 음악 재생 + 닫기
-    if (bgmHint) bgmHint.addEventListener('click', play);
+    if (bgmHint) bgmHint.addEventListener('click', function () { play(); });
     window.addEventListener('scroll', function () { if (bgm._started) hideHint(); }, { passive: true });
+
+    // 재생 위치를 주기적으로 + 페이지 떠날 때 저장
+    var lastSave = 0;
+    bgm.addEventListener('timeupdate', function () {
+      if (bgm.paused) return;
+      var now = bgm.currentTime;
+      if (now - lastSave > 0.8 || now < lastSave) { lastSave = now; save(true); }
+    });
+    window.addEventListener('pagehide', function () { if (!bgm.paused) save(true); });
+
+    // 다른 페이지에서 넘어왔는데 재생 중이었으면 같은 위치에서 이어 재생
+    if (store && store.getItem(ON_KEY) === '1') {
+      var resumeT = parseFloat(store.getItem(T_KEY) || '0');
+      bgm.preload = 'auto';
+      bgm.volume = TARGET_VOL;
+      var seekThenPlay = function () {
+        bgm.removeEventListener('loadedmetadata', seekThenPlay);
+        if (resumeT > 0 && isFinite(bgm.duration)) {
+          try { bgm.currentTime = Math.min(resumeT, bgm.duration - 0.05); } catch (e) {}
+        }
+        var pr = bgm.play();
+        if (pr && pr.then) {
+          pr.then(function () { markPlaying(); }).catch(function () {
+            // 새 페이지 자동재생이 막히면: 첫 사용자 동작에서 이어 재생
+            var resume = function () {
+              window.removeEventListener('pointerdown', resume);
+              window.removeEventListener('scroll', resume);
+              play(true);
+            };
+            window.addEventListener('pointerdown', resume, { once: true });
+            window.addEventListener('scroll', resume, { once: true, passive: true });
+          });
+        } else { markPlaying(); }
+      };
+      bgm.addEventListener('loadedmetadata', seekThenPlay);
+      bgm.load();
+    }
   }
 
   /* --- SERVICES: 호버하면 그 칸 영상 재생 --- */
